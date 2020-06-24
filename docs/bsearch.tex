@@ -42,7 +42,7 @@
 \settrimmedsize{\stockheight}{\stockwidth}{*}
 
 %\setlrmarginsandblock{1.5in}{1in}{*}
-\setlrmarginsandblock{1.2in}{1.2in}{*}
+\setlrmarginsandblock{1.0in}{1.0in}{*}
 \setulmarginsandblock{1.2in}{1.5in}{*}
 \setheadfoot{20mm}{15mm}
 
@@ -62,7 +62,8 @@
 
 
 \title{アルゴリズムとデータ構造\\\vspace{.5em} \Large 二分探索}
-\date{2018年6月15日}
+%\date{2018年6月15日}
+\date{}
 \author{森~立平\\ \texttt{mori@c.titech.ac.jp}}
 
 \begin{document}
@@ -119,7 +120,7 @@
 この漸化式に基づいてアルゴリズムを設計できる。
 
 \begin{lstlisting}[basicstyle=\ttfamily\normalsize,showstringspaces=false,language=C,frame=single]
-int binary_search(int A[], int x, unsigned int l, unsigned int r){
+unsigned int binary_search(int A[], int x, unsigned int l, unsigned int r){
   unsigned int m;
   if(l >= r) return r;
   m = (l + r) / 2; // 桁溢れを考慮すると m = l + (r - l) / 2
@@ -127,10 +128,11 @@ int binary_search(int A[], int x, unsigned int l, unsigned int r){
   else return binary_search(A, x, m + 1, r);
 }
 \end{lstlisting}
+$\ell<r$のとき$\ell \le \lfloor \frac{\ell+r}2\rfloor < r$が満たされることを考慮すると、必ず$r-\ell$は1ステップで減少しており、いつか停止する。
 便宜上$A_n=+\infty$として\textrm{bsearch}を定義したが、このアルゴリズムの中で\textbf{実際に$\mathtt{A[n]}$がアクセスされることはない}。
 
 \section{二分探索の時間計算量}
-一回の漸化式の適用で探索するべき候補は$\lceil n/2\rceil$もしくは$\lfloor n/2\rfloor$になるので$O(\log n)$回(より具体的には$\lceil\log (n+1)\rceil$回)の漸化式の適用で停止する。
+一回の漸化式の適用で探索対象のサイズは$n$から$\lceil n/2\rceil$もしくは$\lfloor n/2\rfloor$に変化するので$O(\log n)$回(より具体的には$\lceil\log (n+1)\rceil$回)の漸化式の適用で停止する。
 
 \section{反復による二分探索}
 再帰によるプログラムを素直に反復に書き直すと次のようになる。
@@ -488,9 +490,9 @@ int main(){
 
 \begin{itemize}
 \item \texttt{\#include <stdio.h>} は毎回書くおまじない。入出力関係のライブラリを使うためのヘッダファイルの取り込み。これが無いと\texttt{scanf}や\texttt{printf}が使えない。
-\item \texttt{int n;} のような関数の外側にある変数は\textbf{グローバル変数}と呼ばれ、プログラムのどこからでもアクセスできる。
+\item \texttt{int n;} のような関数の外側にある変数は\textbf{グローバル変数}と呼ばれ、プログラムのどこからでもアクセスできる。明示的に初期化しない場合は\textbf{0で初期化}されている。
 \item \texttt{int main()} は\textbf{main関数}という特別な関数で、プログラムを実行するとこのmain関数が実行される。
-\item \texttt{int lb, ub;} のような関数の内側にある変数は\textbf{ローカル変数}と呼ばれ、その関数の内側からだけアクセスできる。
+\item \texttt{int lb, ub;} のような関数の内側にある変数は\textbf{ローカル変数}と呼ばれ、その関数の内側からだけアクセスできる。明示的に初期化しない場合は\textbf{どのような値になっているか保証はない}。必ず初期化をすること。
 \item \texttt{scanf("\%d", \&n);} は\textbf{標準入力から整数を読み込み}\texttt{n}に代入する命令文である。
 標準入力から整数を2つ読み込んで\texttt{int}型の変数\texttt{a}と\texttt{b}に代入したい場合は\texttt{scanf("\%d\%d", \&a, \&b);} とする。
 \item \texttt{printf("\%d\textbackslash n", \&n);} は標準出力へ整数\texttt{n}と改行コード \texttt{\textbackslash n}を出力する。
