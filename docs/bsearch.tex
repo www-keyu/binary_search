@@ -123,7 +123,7 @@
 unsigned int binary_search(int A[], int x, unsigned int l, unsigned int r){
   unsigned int m;
   if(l >= r) return r;
-  m = (l + r) / 2; // 桁溢れを考慮すると m = l + (r - l) / 2
+  m = (l + r) / 2; /* 桁溢れを考慮すると m = l + (r - l) / 2 */
   if(A[m] >= x) return binary_search(A, x, l, m);
   else return binary_search(A, x, m + 1, r);
 }
@@ -132,14 +132,28 @@ $\ell<r$のとき$\ell \le \lfloor \frac{\ell+r}2\rfloor < r$が満たされる�
 便宜上$A_n=+\infty$として\textrm{bsearch}を定義したが、このアルゴリズムの中で\textbf{実際に$\mathtt{A[n]}$がアクセスされることはない}。
 
 \section{二分探索の時間計算量}
-一回の漸化式の適用で探索対象のサイズは$n+1$から$\lceil (n+1)/2\rceil$もしくは$\lfloor (n+1)/2\rfloor$に変化する。
-長さ$n$の配列の要素へのアクセス回数の最大値を$T(n+1)$とおく。
+一回の漸化式の適用で探索対象のサイズ($+\infty$も含む)は$n+1$から$\lceil (n+1)/2\rceil$もしくは$\lfloor (n+1)/2\rfloor$に変化する。
+長さ$n$の配列の要素へのアクセス回数の最大値を$T(n+1)$とおくと
+\begin{align*}
+T(1)  &= 0\\
+T(n+1)&= 1 + \max\{T(\lfloor (n+1)/2\rfloor), T(\lceil (n+1)/2\rceil)\}
+\end{align*}
+を満たす。まず$T(n+1)$が単調非減少であることを示す。
+$T(1)=0$, $T(2)=1$が成り立つ。
+$k<n$について、$T(k)\le T(k+1)$が成り立つと仮定する。帰納法の仮定より$n\ge 2$について
+\begin{align*}
+T(n)&= 1 + \max\{T(\lfloor n/2\rfloor), T(\lceil n/2\rceil)\} = 1 + T(\lceil n/2\rceil)\\
+T(n+1)&= 1 + \max\{T(\lfloor (n+1)/2\rfloor), T(\lceil (n+1)/2\rceil)\}= 1 + T(\lceil (n+1)/2\rceil)
+\end{align*}
+が成り立つ($\lceil(n+1)/2\rceil < n+1$に注意する)。よって、帰納法の仮定より$T(n+1)\ge T(n)$である。
+よって$T(n+1)$が単調非減少であることが示された。
+よって
 \begin{align*}
 T(1)  &= 0\\
 T(n+1)&= 1 + T(\lceil (n+1)/2\rceil)
 \end{align*}
-を満たす。
-よって $T(n+1)\le T(2^{\lceil \log (n+1)\rceil}) = \lceil \log (n+1) \rceil$。
+となる。
+単調性より $T(n+1)\le T(2^{\lceil \log (n+1)\rceil}) = \lceil \log (n+1) \rceil = O(\log n)$。
 %ので$O(\log n)$回(より具体的には$\lceil\log (n+1)\rceil$回)の漸化式の適用で停止する。
 
 \section{反復による二分探索}
@@ -149,9 +163,9 @@ unsigned int binary_search(int A[], int x, int n){
   unsigned int l = 0;
   unsigned int r = n;
   while(r > l){
-    unsigned int m = (l + r) / 2;
-    if(A[m] >= x) r = m;
-    else l = m + 1;
+    unsigned int mid = (l + r) / 2;
+    if(A[mid] >= x) r = mid;
+    else l = mid + 1;
   }
   return r;
 }
@@ -163,9 +177,9 @@ unsigned int binary_search(int A[], int x, int n){
   int lb = -1;
   int ub = n;
   while(ub - lb > 1){
-    int m = (lb + ub) / 2;
-    if(A[m] >= x) ub = m;
-    else lb = m;
+    int mid = (lb + ub) / 2;
+    if(A[mid] >= x) ub = mid;
+    else lb = mid;
   }
   return ub;
 }
@@ -177,8 +191,8 @@ unsigned int binary_search(int A[], int x, int n){
 \end{itemize}
 まず\texttt{A[-1] = -$\infty$}と解釈して、\texttt{lb = -1; ub = n} と初期化する。
 もし\texttt{ub == lb + 1} ならば、\texttt{ub}が解となる。
-\texttt{ub > lb + 1} ならば、\texttt{m = (lb + ub) / 2} とおく。
-ここで、\texttt{m > lb \&\& ub > m} が成り立つことに注意する。
+\texttt{ub > lb + 1} ならば、\texttt{mid = (lb + ub) / 2} とおく。
+ここで、\texttt{mid > lb \&\& ub > mid} が成り立つことに注意する。
 よって、\texttt{A[-1]}や\texttt{A[n]}はアクセスされないし、\texttt{ub - lb}は1ステップで必ず減少する。
 
 
@@ -371,22 +385,25 @@ $p(x) = 1$を満たす最小の$x\in\{0,1,2,\dotsc,n-1\}$をもとめよ
 \end{center}
 という問題を二分探索で解くことができる。
 具体的には次のようなプログラムになる。
+
+\begin{minipage}{\linewidth}
 \begin{lstlisting}[basicstyle=\ttfamily\normalsize,showstringspaces=false,language=C,frame=single]
 int lb, ub;
 lb = 「絶対にp(lb) == 0となる値」;
 ub = 「絶対にp(ub) == 1となる値」;
 while(ub - lb > 1) {
-  int m = (lb + ub) / 2;
-  if(p(m)){
-    ub = m;
+  int mid = (lb + ub) / 2;
+  if(p(mid)){
+    ub = mid;
   }
   else {
-    lb = m;
+    lb = mid;
   }
 }
 /* ここで ub が p(ub) == 1 となる最小の値
           lb が p(lb) == 0 となる最大の値となっている */
 \end{lstlisting}
+\end{minipage}
 この考え方を用いると、上記の問題について非常に大きな$n$に対しても現実的な時間で解くことができる。
 
 例えば簡単な例として整数$n$の平方根の切り上げ$\lceil \sqrt{n}\rceil$を求める問題を考えよう。
@@ -417,7 +434,9 @@ int p(unsigned int x){
 そうすると反復回数は$\lceil\log n\rceil$である。
 このように、\textbf{簡単に計算ができる単調な関数の逆関数は二分探索を用いて計算ができる}。
 今回は整数だけを考えているが、実数にも簡単に一般化できる。
-その場合\texttt{lb, ub, m}は \texttt{unsigned int} ではなく \texttt{double} という型にする必要がある。
+その場合\texttt{lb, ub, mid}は \texttt{unsigned int} ではなく \texttt{double} という型にする必要がある。
+
+\begin{minipage}{\linewidth}
 \begin{lstlisting}[basicstyle=\ttfamily\normalsize,showstringspaces=false,language=C,frame=single]
 unsigned int p(double a, double x){
   return a * a >= x;
@@ -432,16 +451,17 @@ double sqrt(double x){
   }
   else {
     lb = 1;
-    ub = x; // もっといい上界を使ってもいい
+    ub = x; /* もっといい上界を使ってもいい */
   }
   while(ub - lb > 0.000001){
-    double m = (lb + ub) / 2;
-    if(p(m, x)) ub = m;
-    else lb = m;
+    double mid = (lb + ub) / 2;
+    if(p(mid, x)) ub = mid;
+    else lb = mid;
   }
   return (lb + ub) / 2;
 }
 \end{lstlisting}
+\end{minipage}
 この関数\texttt{sqrt}は引数の平方根を\texttt{0.000001}の半分以下の誤差で返す。
 ここで、\texttt{ub - lb > 0.000001} をループの条件としているが、
 浮動小数演算の桁落ちのせいで、\texttt{ub}や\texttt{lb}がとても大きいときに、数値誤差の影響でループが停止しないことがあるため危険である。
@@ -468,6 +488,8 @@ double sqrt(double x){
 %前回説明したように単調な関数$p\colon \mathbb{Z}\to\{0,1\}$について、$p(z)=1$となる最小の$z\in\mathbb{Z}$を見つける二分探索のプログラムは次のようになる。
 
 例えば入力として整数$n\ge 1$をとり、$\lceil\sqrt{n}\rceil$を出力するプログラムは次のようになる。
+
+\begin{minipage}{\linewidth}
 \begin{lstlisting}[basicstyle=\ttfamily\normalsize,showstringspaces=false,language=C,frame=single]
 #include <stdio.h>
 
@@ -483,18 +505,19 @@ int main(){
   lb = 0;
   ub = n;
   while(ub - lb > 1) {
-    int m = (lb + ub) / 2;
-    if(p(m)){
-      ub = m;
+    int mid = (lb + ub) / 2;
+    if(p(mid)){
+      ub = mid;
     }
     else {
-      lb = m;
+      lb = mid;
     }
   }
   printf("%d\n", ub);
   return 0;
 }
 \end{lstlisting}
+\end{minipage}
 
 \begin{itemize}
 \item \texttt{\#include <stdio.h>} は毎回書くおまじない。入出力関係のライブラリを使うためのヘッダファイルの取り込み。これが無いと\texttt{scanf}や\texttt{printf}が使えない。
